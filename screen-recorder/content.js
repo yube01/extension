@@ -1,15 +1,18 @@
-const cameraId = "yube-camera";
+window.cameraId = "yube-camera";
+window.camera = document.getElementById(cameraId);
 
-const camera = document.getElementById(cameraId);
-
-if (camera) {
-  console.log("Camera found", camera);
+// check if camera exists
+if (window.camera) {
+  console.log("camera found", camera);
+  // make sure it is visible
+  document.querySelector("#yube-camera").style.display = "block";
 } else {
-  const cameraElement = document.createElement("iframe");
-  cameraElement.id = cameraId;
-  cameraElement.setAttribute(
+  const camaeraElement = document.createElement("iframe");
+  camaeraElement.id = cameraId;
+  camaeraElement.setAttribute(
     "style",
-    ` all: initial;
+    `
+  all: initial;
   position: fixed;
   width:200px;
   height:200px;
@@ -18,11 +21,14 @@ if (camera) {
   border-radius: 100px;
   background: black;
   z-index: 999999;
-  border:none;`
+  border:none;
+  `
   );
-  cameraElement.src = chrome.runtime.getURL("camera.html");
-  // set permiissions on iframe - camera and microphone
-  cameraElement.setAttribute("allow", "camera; microphone");
 
-  document.body.appendChild(cameraElement);
+  // set permiissions on iframe - camera and microphone
+  camaeraElement.setAttribute("allow", "camera; microphone");
+
+  camaeraElement.src = chrome.runtime.getURL("camera.html");
+  document.body.appendChild(camaeraElement);
+  document.querySelector("#yube-camera").style.display = "block";
 }
