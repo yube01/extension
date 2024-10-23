@@ -36,6 +36,54 @@ const stopRecording = async () => {
   recordTabState(false);
 };
 
+const recordTabState = async (start = true) => {
+  // setup our offscrene document
+  const existingContexts = await chrome.runtime.getContexts({});
+  const offscreenDocument = existingContexts.find(
+    (c) => c.contextType === "OFFSCREEN_DOCUMENT"
+  );
+
+  // If an offscreen document is not already open, create one.
+  if (!offscreenDocument) {
+    // Create an offscreen document.
+    await chrome.offscreen.createDocument({
+      url: "offscreen.html",
+      reasons: ["USER_MEDIA", "DISPLAY_MEDIA"],
+      justification: "Recording from chrome.tabCapture API",
+    });
+  }
+
+  if (start) {
+    // use the tapCapture API to get the stream
+    // get the id of the active tab
+    const tab = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab) return;
+
+    const tabId = tab[0].id;
+
+    console.log("tab id", tabId);
+
+    const streamId = await chrome.tabCapture.getMediaStreamId({
+      targetTabId: tabId,
+    });
+
+    console.log("stream id", streamId);
+
+    // send this to our offscreen document
+    chrome.runtime.sendMessage({
+      type: "start-recording",
+      target: "offscreen",
+      data: streamId,
+    });
+  } else {
+    // stop
+    chrome.runtime.sendMessage({
+      type: "stop-recording",
+      target: "offscreen",
+    });
+  }
+};
+
 // add listender for messages
 chrome.runtime.onMessage.addListener(function (request, sender) {
   console.log("message received", request, sender);
