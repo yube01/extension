@@ -25,9 +25,9 @@ const removeCamera = async () => {
   await chrome.scripting.executeScript({
     // content.js is the file that will be injected
     func: () => {
-      const camera = document.querySelector("#rusty-camera");
+      const camera = document.querySelector("#yube-camera");
       if (!camera) return;
-      document.querySelector("#rusty-camera").style.display = "none";
+      document.querySelector("#yube-camera").style.display = "none";
     },
     target: { tabId },
   });
