@@ -1,0 +1,20 @@
+{
+  "name": "Health Reminder",
+  "description": "Reminding extension",
+  "version": "1",
+  "manifest_version": 3,
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "host_permissions": ["https://*/*", "http://*/*"],
+  "permissions": ["scripting"],
+  "icons": {
+    "16": "p.jpg",
+    "19": "icon32.png",
+    "32": "p.jpg",
+    "38": "icon32.png",
+    "48": "icon32.png",
+    "128": "icon32.png"
+  }
+}
