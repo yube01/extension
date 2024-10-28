@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect, useRef } from 'react';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [seconds, setSeconds] = useState<number>(10); // 20 minutes in seconds
+  const [isActive, setIsActive] = useState<boolean>(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null); // Reference to audio element
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null; // Type for the interval
+
+    if (isActive && seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((prev) => prev - 1);
+      }, 1000);
+    } else if (seconds === 0) {
+      if (interval) clearInterval(interval);
+      audioRef.current?.play(); // Play sound alert
+      alert('Time to relax your eyes!'); // Alert user
+      setIsActive(false); // Stop timer
+      setSeconds(1200); // Reset timer for another session
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive, seconds]);
+
+  const formatTime = (secs: number): string => {
+    const minutes = Math.floor(secs / 60);
+    const remainingSeconds = secs % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  };
+
+  const handleStop = () => {
+    setIsActive(false);
+    if (audioRef.current) {
+      audioRef.current.pause(); // Pause the audio
+      audioRef.current.currentTime = 0; // Reset audio playback position
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app">
+      <h1>20-20-20 Rule Timer</h1>
+      <div className="timer">{formatTime(seconds)}</div>
+      <button onClick={() => setIsActive((prev) => !prev)}>
+        {isActive ? 'Pause' : 'Start'}
+      </button>
+      <button onClick={handleStop}>Stop</button> {/* Stop button */}
+      {/* Reference the audio file from the public directory */}
+      <audio ref={audioRef} src="/soun1.mp3" preload="auto" loop /> {/* Loop the audio */}
+    </div>
+  );
 }
 
-export default App
+export default App;
